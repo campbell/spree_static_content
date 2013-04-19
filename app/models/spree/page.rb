@@ -17,7 +17,23 @@ class Spree::Page < ActiveRecord::Base
 
   scope :by_store, lambda { |store| joins(:stores).where("spree_pages_stores.store_id = ?", store) }
 
+
   before_save :update_positions_and_slug
+
+  def self.by_slug(slug, case_insensitive = false)
+    slug = StaticPage::remove_spree_mount_point(slug)
+    pages = self.arel_table
+    pages_slug = pages[:slug]
+
+    if case_insensitive
+      pages_slug = pages_slug.lower
+      slug.downcase! if slug
+    end
+
+    query = pages_slug.eq(slug).or(pages_slug.eq("/#{slug}"))
+    self.where(query)
+  end
+
 
   def initialize(*args)
     super(*args)
