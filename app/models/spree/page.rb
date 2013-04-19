@@ -14,10 +14,17 @@ class Spree::Page < ActiveRecord::Base
 
   attr_accessible :title, :slug, :body, :meta_title, :meta_keywords, :meta_description, :layout, :foreign_link, :position, :show_in_sidebar, :show_in_header, :show_in_footer, :visible, :render_layout_as_partial
 
-  def self.by_slug(slug)
+  def self.by_slug(slug, case_insensitive = false)
     slug = StaticPage::remove_spree_mount_point(slug)
     pages = self.arel_table
-    query = pages[:slug].eq(slug).or(pages[:slug].eq("/#{slug}"))
+    pages_slug = pages[:slug]
+
+    if case_insensitive
+      pages_slug = pages_slug.lower
+      slug.downcase!
+    end
+
+    query = pages_slug.eq(slug).or(pages_slug.eq("/#{slug}"))
     self.where(query)
   end
 
