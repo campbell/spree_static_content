@@ -11,15 +11,16 @@ module SpreeStaticContent
 
       begin
         status, headers, body = @app.call(env)
-      rescue Exception => e
+      rescue ActionController::RoutingError => e
         routing_error = e
       end
 
       if routing_error.present? or status == 404
         path = [ env["PATH_INFO"], env["QUERY_STRING"] ].join("?").sub(/[\/\?\s]*$/, "").strip
 
-        if SpreeStaticContent.redirect_slug_case_mismatches && url = find_redirect(path)
+        if path.present? && SpreeStaticContent.redirect_slug_case_mismatches && url = find_redirect(path)
           # Issue a "Moved permanently" response with the redirect location
+
           return [ 301, { "Location" => url }, [ "Redirecting..." ] ]
         end
       end
