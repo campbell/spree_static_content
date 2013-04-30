@@ -4,16 +4,15 @@ module Spree::PagesHelper
     raw page.body if page
   end
 
+  def render_static_page(slug)
+    page = Spree::Page.by_slug(slug).first
+    raw(parse(page.body)) if page
+  end
+
   def parse(text)
     text.gsub!(/{{(.*)}}/) {|match| call_helper($1)}
     text.gsub!(/<%=(.*)%>/) {|match| call_eval($1)}
     text.html_safe
-  end
-
-  def link_to_sku(*params)
-    sku, text = params
-    product = Spree::Variant.find_by_sku(sku)
-    link_to(sku, product)
   end
 
   def link_to_page(*params)

@@ -24,7 +24,7 @@ class Spree::Page < ActiveRecord::Base
 
     if case_insensitive
       pages_slug = pages_slug.lower
-      slug.downcase!
+      slug.downcase! if slug
     end
 
     query = pages_slug.eq(slug).or(pages_slug.eq("/#{slug}"))
